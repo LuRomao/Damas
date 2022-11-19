@@ -6,7 +6,6 @@ import util.Util;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,7 +14,8 @@ import java.util.List;
 public class TabuleiroPanel {
 
     private JFrame janela;
-    private List<CasaPanel> casas = new ArrayList<>();
+    private CasaPanel[][] casasArray = new CasaPanel[8][8];
+    private Jogo jogo = new Jogo();
 
     private CasaPanel casaSelecionada = null;
 
@@ -23,16 +23,18 @@ public class TabuleiroPanel {
      * Constroi a visualização de um tabuleiro criando uma janela e populando com as diversas casas do tabuleiro
      */
     public TabuleiroPanel(){
+        jogo.iniciarJogo();
+
         janela = new JFrame("damas");
         janela.setLayout(new GridLayout(8, 8));
 
         CasaPanel teste = null;
 
         // Cria cada casa do tabuleiro
-        for (int y = 1; y <= 8; y++){
-            for (int x = 1; x <= 8; x++){
+        for (int y = 0; y < 8; y++){
+            for (int x = 0; x < 8; x++){
                 CasaPanel casaPanel = new CasaPanel(this, x, y);
-                casas.add(casaPanel);
+                casasArray[y][x] = casaPanel;
                 janela.add(casaPanel);
             }
         }
@@ -48,14 +50,19 @@ public class TabuleiroPanel {
      */
     public void marcarJogadasPossiveis(CasaPanel casaClicada){
         casaSelecionada = casaClicada;
-        casas.forEach(c -> {
-            c.setBorder(null);
-            c.setJogadaValida(false);
-            if(Jogo.verificarMovimentoValido(new Movimento(casaClicada.getPosicaoX(), casaClicada.getPosicaoY(), c.getPosicaoX(), c.getPosicaoY()))){
-                c.setJogadaValida(true);
-                c.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Util.COR_HIGHLIGHT));
+        for (int y = 0; y < 8; y++){
+            for (int x = 0; x < 8; x++){
+                casasArray[y][x].setBorder(null);
+                casasArray[y][x].setJogadaValida(false);
             }
+        }
+
+        List<Movimento> movimentos = jogo.obterMovimentosPeca(casaClicada.getPosicaoX(), casaClicada.getPosicaoY());
+        movimentos.forEach(m -> {
+            casasArray[m.getAteY()][m.getAteX()].setJogadaValida(true);
+            casasArray[m.getAteY()][m.getAteX()].setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Util.COR_HIGHLIGHT));
         });
+
         casaClicada.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Util.COR_HIGHLIGHT_PECA_SELECIONADA));
     }
 
@@ -64,13 +71,16 @@ public class TabuleiroPanel {
      * @param casaClicada casa para o qual a peça sera movimentada.
      */
     public void moverPeca(CasaPanel casaClicada){
-        if(Jogo.mover(new Movimento(casaSelecionada.getPosicaoX(), casaSelecionada.getPosicaoY(), casaClicada.getPosicaoX(), casaClicada.getPosicaoY()))){
+        if(jogo.mover(new Movimento(casaSelecionada.getPosicaoX(), casaSelecionada.getPosicaoY(), casaClicada.getPosicaoX(), casaClicada.getPosicaoY()))){
             PecaPanel peca = casaSelecionada.removerPeca();
             casaClicada.adicionarPeca(peca);
-            casas.forEach(c -> {
-                c.setBorder(null);
-                c.setJogadaValida(false);
-            });
+            for (int y = 0; y < 8; y++){
+                for (int x = 0; x < 8; x++){
+                    casasArray[y][x].setBorder(null);
+                    casasArray[y][x].setJogadaValida(false);
+                }
+            }
+            jogo.passarTurno();
         }
     }
 

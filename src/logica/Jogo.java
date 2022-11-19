@@ -2,6 +2,9 @@ package logica;
 
 import util.CorPeca;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Classe contendo a lógica do jogo de damas
  *
@@ -9,55 +12,111 @@ import util.CorPeca;
  */
 public class Jogo {
 
+    private Casa[][] casas = new Casa[8][8];
+
+    private List<Peca> pecasBrancasEmJogo = new ArrayList<>();
+    private List<Peca> pecasPretasEmJogo = new ArrayList<>();
+
+    private List<Movimento> movimentosBrancas = new ArrayList<>();
+    private List<Movimento> movimentosPretas = new ArrayList<>();
+
+    private CorPeca turno = CorPeca.BRANCA;
+
+    /**
+     * Método que inicia o jogo
+     */
+    public void iniciarJogo(){
+        //Loop em todas as posições do tabuleiro inserindo as peças
+        for(int y = 0; y < 8; y++){
+            for(int x = 0; x < 8; x++){
+                Casa casa = new Casa(x, y);
+                Peca peca = obterPecaJogoPadrao(casa);
+                casa.setPeca(peca);
+
+                casas[y][x] = casa;
+
+                if(peca == null){
+                    continue;
+                }
+
+                switch (peca.getCorPeca()){
+                    case BRANCA -> pecasBrancasEmJogo.add(peca);
+                    case PRETA -> pecasPretasEmJogo.add(peca);
+                }
+            }
+        }
+        printBoard();
+        calcularJogadasTurno();
+    }
+
+    /**
+     * Método que calcula os movimentos possíveis de uma peça
+     */
+    public void calcularJogadasTurno(){
+        // NO caso de não ser Dama
+        List<Peca> pecasTurno = turno.equals(CorPeca.BRANCA) ? pecasBrancasEmJogo : pecasPretasEmJogo;
+
+        pecasTurno.forEach(peca -> {
+            peca.getMovimentos().clear();
+
+            //Caso o movimento seja para um valor y válido
+            int direcao = peca.getCasa().getLinha() + turno.getDirecao();
+            if(direcao >= 0 && direcao <= 7){
+
+                //Caso possa se mover para a direita
+                int direita = peca.getCasa().getColuna() + 1;
+                if(direita >= 0 && direita <= 7){
+                    Casa casaDiagonalDireita = casas[direcao][direita];
+                    if (casaDiagonalDireita.getPeca() == null){
+                        peca.getMovimentos().add(new Movimento(peca.getCasa(), casaDiagonalDireita));
+                    }
+                }
+
+                //Caso possa se mover para a esquerda
+                int esquerda = peca.getCasa().getColuna() - 1;
+                if(esquerda >= 0 && esquerda <= 7){
+                    Casa casaDiagonalEsquerda = casas[direcao][esquerda];
+                    if (casaDiagonalEsquerda.getPeca() == null){
+                        peca.getMovimentos().add(new Movimento(peca.getCasa(), casaDiagonalEsquerda));
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Método chamado para passar o turno
+     */
+    public void passarTurno(){
+        switch (turno){
+            case BRANCA -> turno = CorPeca.PRETA;
+            case PRETA -> turno = CorPeca.BRANCA;
+        }
+
+        calcularJogadasTurno();
+    }
+
     /**
      * Verifica se uma posição deveria ter peça no inicio de um jogo
-     * TODO Esse método foi feito mais para testes e deve ser aprofundado mais depois
      *
      * @return true caso possua peça false caso não
      */
-    public static Peca obterPecaJogoPadrao(int x, int y){
-        if(y <= 3 && (x + y) % 2 == 0){
-            return new Peca(CorPeca.BRANCA);
+    public static Peca obterPecaJogoPadrao(Casa casa){
+        if(casa.getLinha() <= 2 && (casa.getLinha() + casa.getColuna()) % 2 == 0){
+            return new Peca(CorPeca.BRANCA, casa);
         }
-        if(y >= 6 && (x + y) % 2 == 0){
-            return new Peca(CorPeca.PRETA);
+        if(casa.getLinha() >= 5 && (casa.getLinha() + casa.getColuna()) % 2 == 0){
+            return new Peca(CorPeca.PRETA, casa);
         }
         return null;
     }
 
-    /**
-     * Verifica se um movimento é válido.
-     * TODO Esse método foi feito mais para testes e deve ser aprofundado mais depois
-     *
-     * @return true caso o movimento seja válido, false caso não
-     */
-    public static boolean verificarMovimentoValido(Movimento movimento){
-        /*
-            Movimento válido:
-
-            - A casa destino deve estar vazia
-            - A casa de partida deve possuir uma peça
-            - A casa de partida deve ser diferente da destino
-            - Caso não ocorra uma captura e a peça não seja uma dama
-              - A diferença de distância entre a partida e a saída em ambos os eixos deve ser igual à 1 ou -1
-              - A peça também deverá seguir apenas para frente (o valor anterior deverá ser -1 para peças brancas e +1 para peças pretas
-            - Caso uma captura possa ocorrer a captura é a única jogada válida
-              - No caso da captura a distancia entre partida e saída em ambos os eixos deve ser igual a 2 ou -2 eu acho (sem dama)
-              - No caso da peça parar em uma casa que possibilita outra captura, ela pode e deve realizar uma nova captura
-              - A maior cadeia de caputuras é priorizada no caso de multiplas cadeias de captura
-            - A dama não possui limite na movimentação contanto que não pule uma peça da mesma cor
-         */
-
-
-        //TODO hardcoded pra obrigar a só poder avançar
-        if(movimento.getDeY() <= 3){
-            return movimento.getDeY() - movimento.getAteY() == -1 && Math.abs(movimento.getDeX() - movimento.getAteX()) == 1;
+    public List<Movimento> obterMovimentosPeca(int x, int y){
+        Peca peca = casas[y][x].getPeca();
+        if(peca != null && peca.getCorPeca().equals(turno)){
+            return peca.getMovimentos();
         }
-        if(movimento.getDeY() >= 6){
-            return movimento.getDeY() - movimento.getAteY() == 1 && Math.abs(movimento.getDeX() - movimento.getAteX()) == 1;
-        }
-
-        return false;
+        return new ArrayList<>();
     }
 
     /**
@@ -66,8 +125,29 @@ public class Jogo {
      * @param movimento movimento a ser realizado.
      * @return resultado da movimentação.
      */
-    public static boolean mover(Movimento movimento){
+    public boolean mover(Movimento movimento){
+        Casa casaDe = casas[movimento.getDeY()][movimento.getDeX()];
+        Casa casaAte = casas[movimento.getAteY()][movimento.getAteX()];
+        Peca peca = casaDe.getPeca();
+
+        casaDe.setPeca(null);
+        casaAte.setPeca(peca);
+        peca.setCasa(casaAte);
         return true;
+    }
+
+    public void printBoard(){
+        for(int y = 0; y < 8; y++){
+            for(int x = 0; x < 8; x++){
+                System.out.print("|");
+                if (casas[y][x].getPeca() != null){
+                    System.out.print("o");
+                } else {
+                    System.out.print(" ");
+                }
+            }
+            System.out.print("|\n");
+        }
     }
 
 }

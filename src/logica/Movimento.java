@@ -7,6 +7,13 @@ public class Movimento {
 
     private int deX, deY, ateX, ateY;
 
+    public Movimento(Casa casaDe, Casa casaAte) {
+        this.deX = casaDe.getColuna();
+        this.deY = casaDe.getLinha();
+        this.ateX = casaAte.getColuna();
+        this.ateY = casaAte.getLinha();
+    }
+
     public Movimento(int deX, int deY, int ateX, int ateY) {
         this.deX = deX;
         this.deY = deY;

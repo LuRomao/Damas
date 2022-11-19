@@ -1,5 +1,6 @@
 package gui;
 
+import logica.Casa;
 import logica.Jogo;
 import logica.Peca;
 import util.Util;
@@ -40,7 +41,7 @@ class CasaPanel extends JPanel {
         setPreferredSize(Util.TAMANHO_CASA);
         setLayout(new GridBagLayout());
 
-        Peca peca = Jogo.obterPecaJogoPadrao(posicaoX, posicaoY);
+        Peca peca = Jogo.obterPecaJogoPadrao(new Casa(posicaoX, posicaoY));
         if (peca != null) {
             pecaPanel = new PecaPanel(peca);
             add(pecaPanel);
