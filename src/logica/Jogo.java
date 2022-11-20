@@ -111,6 +111,12 @@ public class Jogo {
         return null;
     }
 
+    /**
+     * Obtem os movimentos válidos de uma peça.
+     * @param x coluna da peça
+     * @param y linha da peça
+     * @return lista de movimentos válidos
+     */
     public List<Movimento> obterMovimentosPeca(int x, int y){
         Peca peca = casas[y][x].getPeca();
         if(peca != null && peca.getCorPeca().equals(turno)){
@@ -120,8 +126,18 @@ public class Jogo {
     }
 
     /**
+     * Verifica se uma peça é dama
+     * @param x coluna da peça
+     * @param y linha da peça
+     * @return true caso seja dama false caso contrario
+     */
+    public boolean pecaEhDama(int x, int y){
+        Peca peca = casas[y][x].getPeca();
+        return peca != null && peca.isDama();
+    }
+
+    /**
      * Tenta realizar um movimento.
-     * TODO Esse método foi feito mais para testes e deve ser aprofundado mais depois
      * @param movimento movimento a ser realizado.
      * @return resultado da movimentação.
      */
@@ -133,21 +149,35 @@ public class Jogo {
         casaDe.setPeca(null);
         casaAte.setPeca(peca);
         peca.setCasa(casaAte);
+
+        if(peca.getCorPeca().equals(CorPeca.BRANCA) && casaAte.getLinha() == 7
+                || peca.getCorPeca().equals(CorPeca.PRETA) && casaAte.getLinha() == 0){
+            peca.setDama(true);
+        }
+
+        printBoard();
         return true;
     }
 
+    /**
+     * Printa o estado do tabuleiro para fins de debug
+     */
     public void printBoard(){
         for(int y = 0; y < 8; y++){
             for(int x = 0; x < 8; x++){
                 System.out.print("|");
                 if (casas[y][x].getPeca() != null){
-                    System.out.print("o");
+                    switch (casas[y][x].getPeca().getCorPeca()){
+                        case BRANCA -> System.out.print("B");
+                        case PRETA -> System.out.print("P");
+                    }
                 } else {
                     System.out.print(" ");
                 }
             }
             System.out.print("|\n");
         }
+        System.out.print("\n");
     }
 
 }

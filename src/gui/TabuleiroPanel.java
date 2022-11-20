@@ -80,6 +80,7 @@ public class TabuleiroPanel {
                     casasArray[y][x].setJogadaValida(false);
                 }
             }
+            peca.setDama(jogo.pecaEhDama(casaClicada.getPosicaoX(), casaClicada.getPosicaoY()));
             jogo.passarTurno();
         }
     }

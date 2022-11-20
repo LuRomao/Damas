@@ -6,7 +6,12 @@ public class Util {
 
     public static final Dimension TAMANHO_TELA = new Dimension(600, 600);
     public static final Dimension TAMANHO_CASA = new Dimension(10, 10);
-    public static final Dimension TAMANHO_PECA = new Dimension(35, 35);
+    public static final Dimension TAMANHO_PECA = new Dimension(50, 50);
+
+    public static final int PADDING_PECA = -10;
+    public static final int ESPACAMENTO_PECA = 8;
+    public static final int ESPACAMENTO_SOMBRA = 2;
+
     public static final Color COR_CASA_BRANCA = Color.decode("#eee4e1");
     public static final Color COR_CASA_PRETA = Color.decode("#b2967d");
     public static final Color COR_PECA_BRANCA = Color.decode("#e3d0ca");
