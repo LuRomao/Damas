@@ -1,6 +1,8 @@
 package util;
 
 import java.awt.*;
+import java.util.List;
+
 
 public class Util {
 
@@ -18,6 +20,7 @@ public class Util {
     public static final Color COR_PECA_BRANCA = Color.decode("#e3d0ca");
     public static final Color COR_PECA_PRETA = Color.decode("#523c29");
     public static final Color COR_HIGHLIGHT = Color.decode("#65eb9d");
+    public static final Color COR_HIGHLIGHT_ENCADEAMENTO = Color.decode("#d0f5df");
     public static final Color COR_HIGHLIGHT_PECA_SELECIONADA = Color.decode("#8f7660");
 
     public static Color brightness(Color c, double scale) {
@@ -33,5 +36,17 @@ public class Util {
 
     public static Color obterCorPorEnum(CorPeca corPeca){
         return corPeca.equals(CorPeca.BRANCA) ? COR_PECA_BRANCA : COR_PECA_PRETA;
+    }
+
+    public static <T> T obterUltimoElemento(List<T> lista){
+        return lista.size() != 0 ? lista.get(lista.size() - 1) : null;
+    }
+
+    public static <T> T obterPrimeiroElemento(List<T> lista){
+        return lista.size() != 0 ? lista.get(0) : null;
+    }
+
+    public static <T> boolean ultimoElemento(List<T> lista, T objeto){
+        return lista.indexOf(objeto) == lista.size() - 1;
     }
 }

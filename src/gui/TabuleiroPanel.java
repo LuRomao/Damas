@@ -1,11 +1,13 @@
 package gui;
 
+import logica.CadeiaMovimentos;
 import logica.Jogo;
 import logica.Movimento;
 import util.Util;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,6 +17,7 @@ public class TabuleiroPanel {
 
     private JFrame janela;
     private CasaPanel[][] casasArray = new CasaPanel[8][8];
+    private List<CasaPanel> casasMarcadas = new ArrayList<>();
     private Jogo jogo = new Jogo();
     private JPanel borda;
 
@@ -60,20 +63,22 @@ public class TabuleiroPanel {
      */
     public void marcarJogadasPossiveis(CasaPanel casaClicada){
         casaSelecionada = casaClicada;
-        for (int y = 0; y < 8; y++){
-            for (int x = 0; x < 8; x++){
-                casasArray[y][x].setBorder(null);
-                casasArray[y][x].setJogadaValida(false);
-            }
-        }
+        desmarcarCasas(false);
 
-        List<Movimento> movimentos = jogo.obterMovimentosPeca(casaClicada.getPosicaoX(), casaClicada.getPosicaoY());
-        movimentos.forEach(m -> {
-            casasArray[m.getAteY()][m.getAteX()].setJogadaValida(true);
-            casasArray[m.getAteY()][m.getAteX()].setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Util.COR_HIGHLIGHT));
-        });
+        List<CadeiaMovimentos> movimentos = jogo.obterMovimentosPeca(casaClicada.getPosicaoX(), casaClicada.getPosicaoY());
+        movimentos.forEach(c -> c.getMovimentos().forEach(m -> {
+            casasMarcadas.add(casasArray[m.getAteY()][m.getAteX()]);
+            casasArray[m.getAteY()][m.getAteX()].setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Util.COR_HIGHLIGHT_ENCADEAMENTO));
+
+            if(Util.ultimoElemento(c.getMovimentos(), m)){
+                casasArray[m.getAteY()][m.getAteX()].setJogadaValida(true);
+                casasArray[m.getAteY()][m.getAteX()].getCadeiaMovimentos().add(c);
+                casasArray[m.getAteY()][m.getAteX()].setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Util.COR_HIGHLIGHT));
+            }
+        }));
 
         casaClicada.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Util.COR_HIGHLIGHT_PECA_SELECIONADA));
+        casasMarcadas.add(casaClicada);
     }
 
     /**
@@ -81,19 +86,29 @@ public class TabuleiroPanel {
      * @param casaClicada casa para o qual a peça sera movimentada.
      */
     public void moverPeca(CasaPanel casaClicada){
-        if(jogo.mover(new Movimento(casaSelecionada.getPosicaoX(), casaSelecionada.getPosicaoY(), casaClicada.getPosicaoX(), casaClicada.getPosicaoY()))){
+        CadeiaMovimentos cadeiaMovimentos = casaClicada.getCadeiaMovimentos().stream().filter(c -> c.getMovimentos().stream().findFirst().get().getDeX() == casaSelecionada.getPosicaoX() && c.getMovimentos().stream().findFirst().get().getDeY() == casaSelecionada.getPosicaoY()).toList().get(0);
+
+        if(jogo.mover(cadeiaMovimentos)){
             PecaPanel peca = casaSelecionada.removerPeca();
+            desmarcarCasas(true);
             casaClicada.adicionarPeca(peca);
-            for (int y = 0; y < 8; y++){
-                for (int x = 0; x < 8; x++){
-                    casasArray[y][x].setBorder(null);
-                    casasArray[y][x].setJogadaValida(false);
-                }
-            }
             peca.setDama(jogo.pecaEhDama(casaClicada.getPosicaoX(), casaClicada.getPosicaoY()));
             jogo.passarTurno();
             alterarCorFundo();
         }
+    }
+
+    private void desmarcarCasas(boolean removerPecas){
+        casasMarcadas.forEach(c -> {
+            c.setBorder(null);
+            c.setJogadaValida(false);
+            c.setCadeiaMovimentos(new ArrayList<>());
+
+            if(removerPecas && c.getPecaPanel() != null){
+                c.removerPeca();
+            }
+        });
+        casasMarcadas = new ArrayList<>();
     }
 
     private void alterarCorFundo(){

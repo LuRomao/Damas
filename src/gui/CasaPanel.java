@@ -1,5 +1,6 @@
 package gui;
 
+import logica.CadeiaMovimentos;
 import logica.Casa;
 import logica.Jogo;
 import logica.Peca;
@@ -9,6 +10,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Representa a visualização de uma casa do tabuleiro de damas
@@ -16,10 +19,9 @@ import java.awt.event.MouseListener;
 class CasaPanel extends JPanel {
 
     private int posicaoX, posicaoY;
-
     private PecaPanel pecaPanel = null;
-
     private boolean jogadaValida = false;
+    private List<CadeiaMovimentos> cadeiaMovimentos = new ArrayList<>();
 
     private Color corPadrao;
     private TabuleiroPanel tabuleiroPanel;
@@ -152,5 +154,13 @@ class CasaPanel extends JPanel {
 
     public void setJogadaValida(boolean jogadaValida) {
         this.jogadaValida = jogadaValida;
+    }
+
+    public List<CadeiaMovimentos> getCadeiaMovimentos() {
+        return cadeiaMovimentos;
+    }
+
+    public void setCadeiaMovimentos(List<CadeiaMovimentos> cadeiaMovimentos) {
+        this.cadeiaMovimentos = cadeiaMovimentos;
     }
 }

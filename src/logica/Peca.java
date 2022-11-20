@@ -13,7 +13,7 @@ public class Peca {
     private Casa casa;
     private CorPeca corPeca;
     private boolean dama;
-    private List<Movimento> movimentos = new ArrayList<>();
+    private List<CadeiaMovimentos> movimentos = new ArrayList<>();
 
     public Peca(CorPeca corPeca, Casa casa) {
         this.corPeca = corPeca;
@@ -44,11 +44,11 @@ public class Peca {
         this.dama = dama;
     }
 
-    public List<Movimento> getMovimentos() {
+    public List<CadeiaMovimentos> getMovimentos() {
         return movimentos;
     }
 
-    public void setMovimentos(List<Movimento> movimentos) {
+    public void setMovimentos(List<CadeiaMovimentos> movimentos) {
         this.movimentos = movimentos;
     }
 }
