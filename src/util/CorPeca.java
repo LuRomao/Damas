@@ -1,7 +1,7 @@
 package util;
 
 public enum CorPeca {
-    BRANCA(1), PRETA(-1);
+    BRANCA(-1), PRETA(1);
 
     private int direcao;
 

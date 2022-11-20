@@ -8,7 +8,6 @@ import java.util.List;
 /**
  * Classe contendo a lógica do jogo de damas
  *
- * TODO Salvar uma matriz com as peças para mantera a lógica no apartada da interface
  */
 public class Jogo {
 
@@ -53,35 +52,58 @@ public class Jogo {
      * Método que calcula os movimentos possíveis de uma peça
      */
     public void calcularJogadasTurno(){
-        // NO caso de não ser Dama
         List<Peca> pecasTurno = turno.equals(CorPeca.BRANCA) ? pecasBrancasEmJogo : pecasPretasEmJogo;
 
         pecasTurno.forEach(peca -> {
             peca.getMovimentos().clear();
 
-            //Caso o movimento seja para um valor y válido
-            int direcao = peca.getCasa().getLinha() + turno.getDirecao();
-            if(direcao >= 0 && direcao <= 7){
+            if(!peca.isDama()){
+                //Caso o movimento seja para um valor y válido
+                int direcao = peca.getCasa().getLinha() + turno.getDirecao();
+                if(direcao >= 0 && direcao <= 7){
 
-                //Caso possa se mover para a direita
-                int direita = peca.getCasa().getColuna() + 1;
-                if(direita >= 0 && direita <= 7){
-                    Casa casaDiagonalDireita = casas[direcao][direita];
-                    if (casaDiagonalDireita.getPeca() == null){
-                        peca.getMovimentos().add(new Movimento(peca.getCasa(), casaDiagonalDireita));
+                    //Caso possa se mover para a direita
+                    int direita = peca.getCasa().getColuna() + 1;
+                    if(direita >= 0 && direita <= 7){
+                        Casa casaDiagonalDireita = casas[direcao][direita];
+                        if (casaDiagonalDireita.getPeca() == null){
+                            peca.getMovimentos().add(new Movimento(peca.getCasa(), casaDiagonalDireita));
+                        }
+                    }
+
+                    //Caso possa se mover para a esquerda
+                    int esquerda = peca.getCasa().getColuna() - 1;
+                    if(esquerda >= 0 && esquerda <= 7){
+                        Casa casaDiagonalEsquerda = casas[direcao][esquerda];
+                        if (casaDiagonalEsquerda.getPeca() == null){
+                            peca.getMovimentos().add(new Movimento(peca.getCasa(), casaDiagonalEsquerda));
+                        }
                     }
                 }
-
-                //Caso possa se mover para a esquerda
-                int esquerda = peca.getCasa().getColuna() - 1;
-                if(esquerda >= 0 && esquerda <= 7){
-                    Casa casaDiagonalEsquerda = casas[direcao][esquerda];
-                    if (casaDiagonalEsquerda.getPeca() == null){
-                        peca.getMovimentos().add(new Movimento(peca.getCasa(), casaDiagonalEsquerda));
-                    }
-                }
+            } else {
+                adicionarMovimentosDiagonais(peca, 1, 1);
+                adicionarMovimentosDiagonais(peca, 1, -1);
+                adicionarMovimentosDiagonais(peca, -1, 1);
+                adicionarMovimentosDiagonais(peca, -1, -1);
             }
+
         });
+    }
+
+    /**
+     * Adiciona os movimentos diagonais da dama
+     * @param peca dama.
+     * @param xDir direção horizontal
+     * @param yDir direção vertical.
+     */
+    private void adicionarMovimentosDiagonais(Peca peca, int xDir, int yDir){
+        for(int x = peca.getCasa().getColuna() + xDir, y = peca.getCasa().getLinha() + yDir; posicaoDentroDoTabuleiro(x, y); x = x + xDir, y = y + yDir){
+            if(casas[y][x].getPeca() == null){
+                peca.getMovimentos().add(new Movimento(peca.getCasa(), casas[y][x]));
+            } else {
+                break;
+            }
+        }
     }
 
     /**
@@ -103,10 +125,10 @@ public class Jogo {
      */
     public static Peca obterPecaJogoPadrao(Casa casa){
         if(casa.getLinha() <= 2 && (casa.getLinha() + casa.getColuna()) % 2 == 0){
-            return new Peca(CorPeca.BRANCA, casa);
+            return new Peca(CorPeca.PRETA, casa);
         }
         if(casa.getLinha() >= 5 && (casa.getLinha() + casa.getColuna()) % 2 == 0){
-            return new Peca(CorPeca.PRETA, casa);
+            return new Peca(CorPeca.BRANCA, casa);
         }
         return null;
     }
@@ -150,13 +172,23 @@ public class Jogo {
         casaAte.setPeca(peca);
         peca.setCasa(casaAte);
 
-        if(peca.getCorPeca().equals(CorPeca.BRANCA) && casaAte.getLinha() == 7
-                || peca.getCorPeca().equals(CorPeca.PRETA) && casaAte.getLinha() == 0){
+        if(peca.getCorPeca().equals(CorPeca.BRANCA) && casaAte.getLinha() == 0
+                || peca.getCorPeca().equals(CorPeca.PRETA) && casaAte.getLinha() == 7){
             peca.setDama(true);
         }
 
         printBoard();
         return true;
+    }
+
+    /**
+     * Verifica se uma posição existe dentro do tabuleiro
+     * @param x coluna
+     * @param y linha
+     * @return true caso exista false caso contrario
+     */
+    public boolean posicaoDentroDoTabuleiro(int x, int y){
+        return x >= 0 && x <= 7 && y >= 0 && y <= 7;
     }
 
     /**
