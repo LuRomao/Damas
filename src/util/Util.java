@@ -4,7 +4,8 @@ import java.awt.*;
 
 public class Util {
 
-    public static final Dimension TAMANHO_TELA = new Dimension(600, 600);
+    public static final Dimension TAMANHO_TELA = new Dimension(800, 800);
+    public static final Dimension TAMANHO_BORDA = new Dimension(700, 700);
     public static final Dimension TAMANHO_CASA = new Dimension(10, 10);
     public static final Dimension TAMANHO_PECA = new Dimension(50, 50);
 
@@ -30,4 +31,7 @@ public class Util {
         return Math.max(min, Math.min(max, value));
     }
 
+    public static Color obterCorPorEnum(CorPeca corPeca){
+        return corPeca.equals(CorPeca.BRANCA) ? COR_PECA_BRANCA : COR_PECA_PRETA;
+    }
 }

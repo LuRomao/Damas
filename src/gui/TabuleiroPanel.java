@@ -16,6 +16,7 @@ public class TabuleiroPanel {
     private JFrame janela;
     private CasaPanel[][] casasArray = new CasaPanel[8][8];
     private Jogo jogo = new Jogo();
+    private JPanel borda;
 
     private CasaPanel casaSelecionada = null;
 
@@ -25,8 +26,16 @@ public class TabuleiroPanel {
     public TabuleiroPanel(){
         jogo.iniciarJogo();
 
+        borda = new JPanel();
+        borda.setPreferredSize(Util.TAMANHO_BORDA);
+
         janela = new JFrame("damas");
-        janela.setLayout(new GridLayout(8, 8));
+        janela.setLayout(new GridBagLayout());
+        janela.add(borda);
+
+        alterarCorFundo();
+
+        borda.setLayout(new GridLayout(8, 8));
 
         CasaPanel teste = null;
 
@@ -35,12 +44,13 @@ public class TabuleiroPanel {
             for (int x = 0; x < 8; x++){
                 CasaPanel casaPanel = new CasaPanel(this, x, y);
                 casasArray[y][x] = casaPanel;
-                janela.add(casaPanel);
+                borda.add(casaPanel);
             }
         }
 
         janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         janela.setSize(Util.TAMANHO_TELA);
+        janela.setLocationRelativeTo(null);
         janela.setVisible(true);
     }
 
@@ -82,7 +92,14 @@ public class TabuleiroPanel {
             }
             peca.setDama(jogo.pecaEhDama(casaClicada.getPosicaoX(), casaClicada.getPosicaoY()));
             jogo.passarTurno();
+            alterarCorFundo();
         }
+    }
+
+    private void alterarCorFundo(){
+        Color corFundo = Util.obterCorPorEnum(jogo.getTurno());
+        janela.getContentPane().setBackground(corFundo);
+        borda.setBackground(corFundo);
     }
 
 }

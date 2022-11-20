@@ -212,4 +212,7 @@ public class Jogo {
         System.out.print("\n");
     }
 
+    public CorPeca getTurno() {
+        return turno;
+    }
 }
