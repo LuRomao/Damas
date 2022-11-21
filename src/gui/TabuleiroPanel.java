@@ -2,6 +2,7 @@ package gui;
 
 import logica.CadeiaMovimentos;
 import logica.Jogo;
+import logica.Movimento;
 import util.Util;
 
 import javax.swing.*;
@@ -19,7 +20,7 @@ public class TabuleiroPanel {
     private List<CasaPanel> casasMarcadas = new ArrayList<>();
     private Jogo jogo = new Jogo();
     private JPanel borda;
-    private boolean debug = true;
+    private boolean debug = false;
 
     private CasaPanel casaSelecionada = null;
 
@@ -97,6 +98,12 @@ public class TabuleiroPanel {
             peca.setDama(jogo.pecaEhDama(casaClicada.getPosicaoX(), casaClicada.getPosicaoY()));
             jogo.passarTurno();
             alterarCorFundo();
+
+            //Caso tenha apenas uma jogada possivel
+            if(jogo.obterMovimentosTurnoAtual().size() == 1){
+                Movimento movimentoObrigatorio = jogo.obterMovimentosTurnoAtual().get(0).getMovimentos().get(0);
+                marcarJogadasPossiveis(casasArray[movimentoObrigatorio.getDeY()][movimentoObrigatorio.getDeX()]);
+            }
 
             marcarCasasDebug();
         }

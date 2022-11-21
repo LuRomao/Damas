@@ -62,7 +62,7 @@ public class Jogo {
             peca.setMovimentos(new ArrayList<>());
 
             if(!peca.isDama()){
-                computarJogadasCasa(peca.getCasa().getColuna(), peca.getCasa().getLinha(), false, 0, null, peca);
+                computarJogadasCasa(peca.getCasa(), null, false, true, null, peca);
             } else {
                 adicionarMovimentosDiagonais(peca, 1, 1);
                 adicionarMovimentosDiagonais(peca, 1, -1);
@@ -75,12 +75,11 @@ public class Jogo {
         System.out.println("Movimentos Possiveis: " + obterMovimentosTurnoAtual().size());
     }
 
-    private void computarJogadasCasa(int x, int y, boolean esperaPeca, int depth, CadeiaMovimentos cadeiaMovimentos, Peca peca){
-        List<Casa> movimentosBasicos = obterCasasMovimentoBasico(casas[y][x]);
-        Casa casaAtual = casas[y][x];
+    private void computarJogadasCasa(Casa casaAtual, Casa casaAnterior, boolean esperaPeca, boolean primeiraPassagem, CadeiaMovimentos cadeiaMovimentos, Peca peca){
+        List<Casa> movimentosBasicos = obterCasasMovimentoBasico(casaAnterior, casaAtual, primeiraPassagem);
 
         //Primeira iteração
-        if(depth == 0){
+        if(primeiraPassagem){
             for(Casa c : movimentosBasicos){
 
                 cadeiaMovimentos = new CadeiaMovimentos();
@@ -92,7 +91,7 @@ public class Jogo {
                     tentarAdicionarCadeiaDeMovimentos(cadeiaMovimentos);
 
                 } else if (!peca.getCorPeca().equals(c.getPeca().getCorPeca())){
-                    computarJogadasCasa(c.getColuna(), c.getLinha(), false, depth + 1,cadeiaMovimentos, peca);
+                    computarJogadasCasa(c, casaAtual, false, false,cadeiaMovimentos, peca);
                 }
             }
 
@@ -103,16 +102,14 @@ public class Jogo {
                 novaCadeiaMovimentos.getMovimentos().add(new Movimento(casaAtual, c));
 
                 //Caso espere uma peça e possua uma peça
-                if(c.getPeca() != null && esperaPeca && !peca.getCorPeca().equals(c.getPeca().getCorPeca())){
-                    //Apenas continuando a direção da casa anterior
+                if(c.getPeca() != null && esperaPeca && !peca.getCorPeca().equals(c.getPeca().getCorPeca()) && !cadeiaMovimentos.getPecasCapturadas().stream().anyMatch(p -> p.equals(c.getPeca()))){
                     novaCadeiaMovimentos.getPecasCapturadas().add(c.getPeca());
-                    computarJogadasCasa(c.getColuna(), c.getLinha(), !esperaPeca, depth + 1, novaCadeiaMovimentos, peca);
+                    computarJogadasCasa(c, casaAtual, false, false, novaCadeiaMovimentos, peca);
                 }
 
                 //Caso não espere peça e não possua peça
                 if(c.getPeca() == null && !esperaPeca){
-                    //Qualquer direção contanto que não tenha uma peça que já esteja na cadeia de movimentos
-                    computarJogadasCasa(c.getColuna(), c.getLinha(), !esperaPeca, depth + 1, novaCadeiaMovimentos, peca);
+                    computarJogadasCasa(c, null, true, false, novaCadeiaMovimentos, peca);
                 }
             }
 
@@ -153,11 +150,9 @@ public class Jogo {
         // Caso não possua cadeia de movimento ou possua uma com o mesmo tamanho apenas adiciona a lista
         // e caso possua uma cadeia menor que a atual substitui ela pela a atual
         if(cadeiaMaiorOuIgual.size() == 0 || cadeiaMaiorOuIgual.get(0).getCapturas() == cadeiaMovimentos.getCapturas()){
-            System.out.println("Movimento Adicionado");
             cadeiasValidas.add(cadeiaMovimentos);
 
         } else if(cadeiaMaiorOuIgual.get(0).getCapturas() < cadeiaMovimentos.getCapturas()){
-            System.out.println("Movimento substituido");
             cadeiasValidas = new ArrayList<>();
             cadeiasValidas.add(cadeiaMovimentos);
         }
@@ -180,20 +175,44 @@ public class Jogo {
         }
     }
 
-    private List<Casa> obterCasasMovimentoBasico(Casa casa){
+    private List<Casa> obterCasasMovimentoBasico(Casa casaAnterior, Casa casaAtual, boolean primeiraPassagem){
         List<Casa> resultado = new ArrayList<>();
 
-        int frente = casa.getLinha() + turno.getDirecao();
-        int atras = casa.getLinha() + (turno.getDirecao() * -1);
-        int direita = casa.getColuna() + 1;
-        int esquerda = casa.getColuna() - 1;
+        if(casaAnterior != null){
+            int coluna = (casaAtual.getColuna() - casaAnterior.getColuna() ) + casaAtual.getColuna();
+            int linha = (casaAtual.getLinha() - casaAnterior.getLinha()) + casaAtual.getLinha();
 
-        if(posicaoDentroDoTabuleiro(direita, frente)){
-            resultado.add(casas[frente][direita]);
-        }
+            if(posicaoDentroDoTabuleiro(coluna, linha)){
+                resultado.add(casas[linha][coluna]);
+            }
 
-        if(posicaoDentroDoTabuleiro(esquerda, frente)){
-            resultado.add(casas[frente][esquerda]);
+        } else {
+
+            int frente = casaAtual.getLinha() + turno.getDirecao();
+
+            int direita = casaAtual.getColuna() + 1;
+            int esquerda = casaAtual.getColuna() - 1;
+
+            if(posicaoDentroDoTabuleiro(direita, frente)){
+                resultado.add(casas[frente][direita]);
+            }
+
+            if(posicaoDentroDoTabuleiro(esquerda, frente)){
+                resultado.add(casas[frente][esquerda]);
+            }
+
+            if(!primeiraPassagem){
+                int atras = casaAtual.getLinha() + (turno.getDirecao() * -1);
+
+                if(posicaoDentroDoTabuleiro(direita, atras)){
+                    resultado.add(casas[atras][direita]);
+                }
+
+                if(posicaoDentroDoTabuleiro(esquerda, atras)){
+                    resultado.add(casas[atras][esquerda]);
+                }
+            }
+
         }
 
         return resultado;
