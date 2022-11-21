@@ -4,7 +4,6 @@ import util.CorPeca;
 import util.Util;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -204,19 +203,19 @@ public class Jogo {
         List<Casa> resultado = new ArrayList<>();
 
         if(casaAnterior != null){
-            int coluna = (casaAtual.getColuna() - casaAnterior.getColuna() ) + casaAtual.getColuna();
-            int linha = (casaAtual.getLinha() - casaAnterior.getLinha()) + casaAtual.getLinha();
+            int x = (casaAtual.getX() - casaAnterior.getX() ) + casaAtual.getX();
+            int y = (casaAtual.getY() - casaAnterior.getY()) + casaAtual.getY();
 
-            if(posicaoDentroDoTabuleiro(coluna, linha)){
-                resultado.add(casas[linha][coluna]);
+            if(posicaoDentroDoTabuleiro(x, y)){
+                resultado.add(casas[y][x]);
             }
 
         } else {
 
-            int frente = casaAtual.getLinha() + turno.getDirecao();
+            int frente = casaAtual.getY() + turno.getDirecao();
 
-            int direita = casaAtual.getColuna() + 1;
-            int esquerda = casaAtual.getColuna() - 1;
+            int direita = casaAtual.getX() + 1;
+            int esquerda = casaAtual.getX() - 1;
 
             if(posicaoDentroDoTabuleiro(direita, frente)){
                 resultado.add(casas[frente][direita]);
@@ -227,7 +226,7 @@ public class Jogo {
             }
 
             if(!apenasFrente){
-                int atras = casaAtual.getLinha() + (turno.getDirecao() * -1);
+                int atras = casaAtual.getY() + (turno.getDirecao() * -1);
 
                 if(posicaoDentroDoTabuleiro(direita, atras)){
                     resultado.add(casas[atras][direita]);
@@ -262,22 +261,22 @@ public class Jogo {
      */
     public static Peca obterPecaJogoPadrao(Casa casa){
         //TODO REMOVER APÓS FIM DOS TESTES
-        if(casa.getLinha() == 5 && casa.getColuna() == 4){
+        if(casa.getY() == 5 && casa.getX() == 4){
             Peca peca = new Peca(CorPeca.BRANCA, casa);
             peca.setDama(true);
             return peca;
         }
 
-        if(casa.getLinha() == 3 && casa.getColuna() == 2){
+        if(casa.getY() == 3 && casa.getX() == 2){
             Peca peca = new Peca(CorPeca.PRETA, casa);
 //            peca.setDama(true);
             return peca;
         }
 
-        if(casa.getLinha() <= 2 && (casa.getLinha() + casa.getColuna()) % 2 == 0){
+        if(casa.getY() <= 2 && (casa.getY() + casa.getX()) % 2 == 0){
             return new Peca(CorPeca.PRETA, casa);
         }
-        if(casa.getLinha() >= 5 && (casa.getLinha() + casa.getColuna()) % 2 == 0){
+        if(casa.getY() >= 5 && (casa.getY() + casa.getX()) % 2 == 0){
             return new Peca(CorPeca.BRANCA, casa);
         }
         return null;
@@ -285,8 +284,8 @@ public class Jogo {
 
     /**
      * Obtem os movimentos válidos de uma peça.
-     * @param x coluna da peça
-     * @param y linha da peça
+     * @param x eixo x da peça
+     * @param y eixo y da peça
      * @return lista de movimentos válidos
      */
     public List<CadeiaMovimentos> obterMovimentosPeca(int x, int y){
@@ -299,8 +298,8 @@ public class Jogo {
 
     /**
      * Verifica se uma peça é dama
-     * @param x coluna da peça
-     * @param y linha da peça
+     * @param x eixo x da peça
+     * @param y eixo y da peça
      * @return true caso seja dama false caso contrario
      */
     public boolean pecaEhDama(int x, int y){
@@ -336,8 +335,8 @@ public class Jogo {
             }
         }
 
-        if(peca.getCorPeca().equals(CorPeca.BRANCA) && casaFinal.getLinha() == 0
-                || peca.getCorPeca().equals(CorPeca.PRETA) && casaFinal.getLinha() == 7){
+        if(peca.getCorPeca().equals(CorPeca.BRANCA) && casaFinal.getY() == 0
+                || peca.getCorPeca().equals(CorPeca.PRETA) && casaFinal.getY() == 7){
             peca.setDama(true);
         }
 
@@ -347,8 +346,8 @@ public class Jogo {
 
     /**
      * Verifica se uma posição existe dentro do tabuleiro
-     * @param x coluna
-     * @param y linha
+     * @param x eixo x
+     * @param y eixo y
      * @return true caso exista false caso contrario
      */
     public boolean posicaoDentroDoTabuleiro(int x, int y){

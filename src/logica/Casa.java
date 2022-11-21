@@ -6,11 +6,11 @@ package logica;
 public class Casa {
 
     private Peca peca;
-    private int linha, coluna;
+    private int x, y;
 
-    public Casa(int coluna, int linha) {
-        this.coluna = coluna;
-        this.linha = linha;
+    public Casa(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
 
     public Peca getPeca() {
@@ -21,19 +21,20 @@ public class Casa {
         this.peca = peca;
     }
 
-    public int getLinha() {
-        return linha;
+    public int getX() {
+        return x;
     }
 
-    public void setLinha(int linha) {
-        this.linha = linha;
+    public void setX(int x) {
+        this.x = x;
     }
 
-    public int getColuna() {
-        return coluna;
+    public int getY() {
+        return y;
     }
 
-    public void setColuna(int coluna) {
-        this.coluna = coluna;
+    public void setY(int y) {
+        this.y = y;
     }
+
 }

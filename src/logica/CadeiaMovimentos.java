@@ -20,7 +20,7 @@ public class CadeiaMovimentos {
     public CadeiaMovimentos(CadeiaMovimentos cadeiaMovimentos){
         this.pecaMovimentada = cadeiaMovimentos.getPecaMovimentada();
         this.movimentos = new ArrayList<>(cadeiaMovimentos.getMovimentos());
-        this.pecasCapturadas = new ArrayList<>(cadeiaMovimentos.pecasCapturadas);
+        this.pecasCapturadas = new ArrayList<>(cadeiaMovimentos.getPecasCapturadas());
     }
 
     public Peca getPecaMovimentada() {

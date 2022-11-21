@@ -8,10 +8,10 @@ public class Movimento {
     private int deX, deY, ateX, ateY;
 
     public Movimento(Casa casaDe, Casa casaAte) {
-        this.deX = casaDe.getColuna();
-        this.deY = casaDe.getLinha();
-        this.ateX = casaAte.getColuna();
-        this.ateY = casaAte.getLinha();
+        this.deX = casaDe.getX();
+        this.deY = casaDe.getY();
+        this.ateX = casaAte.getX();
+        this.ateY = casaAte.getY();
     }
 
     public Movimento(int deX, int deY, int ateX, int ateY) {
