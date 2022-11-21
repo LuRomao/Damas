@@ -64,10 +64,7 @@ public class Jogo {
             if(!peca.isDama()){
                 computarJogadasCasa(peca.getCasa(), null, false, true, null, peca);
             } else {
-                adicionarMovimentosDiagonais(peca, 1, 1);
-                adicionarMovimentosDiagonais(peca, 1, -1);
-                adicionarMovimentosDiagonais(peca, -1, 1);
-                adicionarMovimentosDiagonais(peca, -1, -1);
+                computarJogadasCasaDama(peca.getCasa(), null, false, null, peca);
             }
 
         });
@@ -118,6 +115,26 @@ public class Jogo {
 
     }
 
+    private void computarJogadasCasaDama(Casa casaAtual, Casa casaAnterior, boolean continuarDirecao, CadeiaMovimentos cadeiaMovimentos, Peca peca){
+        if(cadeiaMovimentos == null){
+            cadeiaMovimentos = new CadeiaMovimentos(peca, new ArrayList<>());
+        }
+
+        List<Casa> movimentosBasicos = obterCasasMovimentoBasico(continuarDirecao ? casaAnterior : null, casaAtual, false);
+
+        for(Casa c : movimentosBasicos){
+
+            CadeiaMovimentos newCadeia = new CadeiaMovimentos(cadeiaMovimentos);
+            newCadeia.getMovimentos().add(new Movimento(casaAtual, c));
+
+            if(c.getPeca() == null){
+                computarJogadasCasaDama(c, casaAtual, true, newCadeia, peca);
+            }
+
+            tentarAdicionarCadeiaDeMovimentos(newCadeia);
+        }
+    }
+
     private void tentarAdicionarCadeiaDeMovimentos(CadeiaMovimentos cadeiaMovimentos){
         List<Peca> pecasCapturadas = new ArrayList<>();
         Movimento ultimoMovimento = null;
@@ -140,9 +157,9 @@ public class Jogo {
 
         cadeiaMovimentos.setPecasCapturadas(pecasCapturadas);
 
-        // Obtém uma lista ordenada de cadeias de movimento maiores ou iguais a cadeia atual
+        // Obtém uma lista ordenada de cadeias de movimento com capturas maiores ou iguais a cadeia atual
         List<CadeiaMovimentos> cadeiaMaiorOuIgual = obterMovimentosTurnoAtual().stream()
-                .filter(c -> c.getMovimentos().size() >= cadeiaMovimentos.getMovimentos().size())
+                .filter(c -> c.getCapturas() >= cadeiaMovimentos.getCapturas())
                 .sorted(Comparator.comparingInt(CadeiaMovimentos::getCapturas).reversed()).toList();
 
         List<CadeiaMovimentos> cadeiasValidas = new ArrayList<>(cadeiaMaiorOuIgual);
@@ -175,7 +192,7 @@ public class Jogo {
         }
     }
 
-    private List<Casa> obterCasasMovimentoBasico(Casa casaAnterior, Casa casaAtual, boolean primeiraPassagem){
+    private List<Casa> obterCasasMovimentoBasico(Casa casaAnterior, Casa casaAtual, boolean apenasFrente){
         List<Casa> resultado = new ArrayList<>();
 
         if(casaAnterior != null){
@@ -201,7 +218,7 @@ public class Jogo {
                 resultado.add(casas[frente][esquerda]);
             }
 
-            if(!primeiraPassagem){
+            if(!apenasFrente){
                 int atras = casaAtual.getLinha() + (turno.getDirecao() * -1);
 
                 if(posicaoDentroDoTabuleiro(direita, atras)){
@@ -216,23 +233,6 @@ public class Jogo {
         }
 
         return resultado;
-    }
-
-    /**
-     * Adiciona os movimentos diagonais da dama
-     * @param peca dama.
-     * @param xDir direção horizontal
-     * @param yDir direção vertical.
-     */
-    private void adicionarMovimentosDiagonais(Peca peca, int xDir, int yDir){
-        for(int x = peca.getCasa().getColuna() + xDir, y = peca.getCasa().getLinha() + yDir; posicaoDentroDoTabuleiro(x, y); x = x + xDir, y = y + yDir){
-            if(casas[y][x].getPeca() == null){
-                // TODO CONSERTAR ISSO
-                peca.getMovimentos().add(new CadeiaMovimentos(peca, Collections.singletonList(new Movimento(peca.getCasa(), casas[y][x]))));
-            } else {
-                break;
-            }
-        }
     }
 
     /**
@@ -253,6 +253,12 @@ public class Jogo {
      * @return true caso possua peça false caso não
      */
     public static Peca obterPecaJogoPadrao(Casa casa){
+        if(casa.getLinha() == 5 && casa.getColuna() == 4){
+            Peca peca = new Peca(CorPeca.BRANCA, casa);
+            peca.setDama(true);
+            return peca;
+        }
+
         if(casa.getLinha() <= 2 && (casa.getLinha() + casa.getColuna()) % 2 == 0){
             return new Peca(CorPeca.PRETA, casa);
         }
