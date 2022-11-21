@@ -6,12 +6,21 @@ import java.util.List;
 public class CadeiaMovimentos {
 
     private Peca pecaMovimentada;
-    private List<Movimento> movimentos;
+    private List<Movimento> movimentos = new ArrayList<>();
     private List<Peca> pecasCapturadas = new ArrayList<>();
+
+    public CadeiaMovimentos(){
+    }
 
     public CadeiaMovimentos(Peca pecaMovimentada, List<Movimento> movimentos) {
         this.pecaMovimentada = pecaMovimentada;
         this.movimentos = movimentos;
+    }
+
+    public CadeiaMovimentos(CadeiaMovimentos cadeiaMovimentos){
+        this.pecaMovimentada = cadeiaMovimentos.getPecaMovimentada();
+        this.movimentos = new ArrayList<>(cadeiaMovimentos.getMovimentos());
+        this.pecasCapturadas = new ArrayList<>(cadeiaMovimentos.pecasCapturadas);
     }
 
     public Peca getPecaMovimentada() {
