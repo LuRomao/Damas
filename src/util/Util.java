@@ -22,6 +22,8 @@ public class Util {
     public static final Color COR_HIGHLIGHT = Color.decode("#65eb9d");
     public static final Color COR_HIGHLIGHT_ENCADEAMENTO = Color.decode("#d0f5df");
     public static final Color COR_HIGHLIGHT_PECA_SELECIONADA = Color.decode("#8f7660");
+    public static final Color COR_DEBUG = Color.decode("#FF0000");
+    public static final Color COR_DEBUG_ENCADEAMENTO = Color.decode("#f57171");
 
     public static Color brightness(Color c, double scale) {
         int r = Math.min(255, (int) (c.getRed() * scale));

@@ -19,8 +19,8 @@ public class Jogo {
     private List<Peca> pecasBrancasEmJogo = new ArrayList<>();
     private List<Peca> pecasPretasEmJogo = new ArrayList<>();
 
-    private List<Movimento> movimentosBrancas = new ArrayList<>();
-    private List<Movimento> movimentosPretas = new ArrayList<>();
+    private List<CadeiaMovimentos> movimentosBrancas = new ArrayList<>();
+    private List<CadeiaMovimentos> movimentosPretas = new ArrayList<>();
 
     private CorPeca turno = CorPeca.BRANCA;
 
@@ -55,10 +55,11 @@ public class Jogo {
      * Método que calcula os movimentos possíveis de uma peça
      */
     public void calcularJogadasTurno(){
-        List<Peca> pecasTurno = turno.equals(CorPeca.BRANCA) ? pecasBrancasEmJogo : pecasPretasEmJogo;
+        List<Peca> pecasTurno = obterPecas(turno);
+        setMovimentosTurnoAtual(new ArrayList<>());
 
         pecasTurno.forEach(peca -> {
-            peca.getMovimentos().clear();
+            peca.setMovimentos(new ArrayList<>());
 
             if(!peca.isDama()){
                 computarJogadasCasa(peca.getCasa().getColuna(), peca.getCasa().getLinha(), false, 0, null, peca);
@@ -70,6 +71,8 @@ public class Jogo {
             }
 
         });
+        obterMovimentosTurnoAtual().stream().forEach(m -> m.getPecaMovimentada().getMovimentos().add(m));
+        System.out.println("Movimentos Possiveis: " + obterMovimentosTurnoAtual().size());
     }
 
     private void computarJogadasCasa(int x, int y, boolean esperaPeca, int depth, List<Movimento> movimentos, Peca peca){
@@ -105,6 +108,8 @@ public class Jogo {
 
                     List<Movimento> mov = new ArrayList<>(finalMovimentos);
                     mov.add(new Movimento(casaAtual, c));
+
+                    // Se não espera peça deve ter direção setada
                     computarJogadasCasa(c.getColuna(), c.getLinha(), !esperaPeca, depth + 1, mov, peca);
                 }
             });
@@ -115,7 +120,7 @@ public class Jogo {
     }
 
     private void tentarAdicionarCadeiaDeMovimentos(Peca peca, List<Movimento> movimentos){
-        CadeiaMovimentos cadeiaMovimentos = new CadeiaMovimentos(movimentos);
+        CadeiaMovimentos cadeiaMovimentos = new CadeiaMovimentos(peca, movimentos);
         List<Peca> pecasCapturadas = new ArrayList<>();
         Movimento ultimoMovimento = null;
 
@@ -138,22 +143,40 @@ public class Jogo {
         cadeiaMovimentos.setPecasCapturadas(pecasCapturadas);
 
         // Obtém uma lista ordenada de cadeias de movimento maiores ou iguais a cadeia atual
-        List<CadeiaMovimentos> cadeiaMaiorOuIgual = peca.getMovimentos().stream()
+        List<CadeiaMovimentos> cadeiaMaiorOuIgual = obterMovimentosTurnoAtual().stream()
                 .filter(c -> c.getMovimentos().size() >= cadeiaMovimentos.getMovimentos().size())
                 .sorted(Comparator.comparingInt(CadeiaMovimentos::getCapturas).reversed()).toList();
 
         List<CadeiaMovimentos> cadeiasValidas = new ArrayList<>(cadeiaMaiorOuIgual);
+
         // Caso não possua cadeia de movimento ou possua uma com o mesmo tamanho apenas adiciona a lista
         // e caso possua uma cadeia menor que a atual substitui ela pela a atual
         if(cadeiaMaiorOuIgual.size() == 0 || cadeiaMaiorOuIgual.get(0).getCapturas() == cadeiaMovimentos.getCapturas()){
+            System.out.println("Movimento Adicionado");
             cadeiasValidas.add(cadeiaMovimentos);
 
         } else if(cadeiaMaiorOuIgual.get(0).getCapturas() < cadeiaMovimentos.getCapturas()){
+            System.out.println("Movimento substituido");
             cadeiasValidas = new ArrayList<>();
             cadeiasValidas.add(cadeiaMovimentos);
         }
 
-        peca.setMovimentos(cadeiasValidas);
+        setMovimentosTurnoAtual(cadeiasValidas);
+    }
+
+    public List<Peca> obterPecas(CorPeca cor){
+        return cor.equals(CorPeca.BRANCA) ? pecasBrancasEmJogo : pecasPretasEmJogo;
+    }
+
+    public List<CadeiaMovimentos> obterMovimentosTurnoAtual(){
+        return turno.equals(CorPeca.BRANCA) ? movimentosBrancas : movimentosPretas;
+    }
+
+    private void setMovimentosTurnoAtual(List<CadeiaMovimentos> movimentos){
+        switch (turno){
+            case BRANCA -> movimentosBrancas = movimentos;
+            case PRETA -> movimentosPretas = movimentos;
+        }
     }
 
     private List<Casa> obterCasasMovimentoBasico(Casa casa){
@@ -184,7 +207,7 @@ public class Jogo {
         for(int x = peca.getCasa().getColuna() + xDir, y = peca.getCasa().getLinha() + yDir; posicaoDentroDoTabuleiro(x, y); x = x + xDir, y = y + yDir){
             if(casas[y][x].getPeca() == null){
                 // TODO CONSERTAR ISSO
-                peca.getMovimentos().add(new CadeiaMovimentos(Collections.singletonList(new Movimento(peca.getCasa(), casas[y][x]))));
+                peca.getMovimentos().add(new CadeiaMovimentos(peca, Collections.singletonList(new Movimento(peca.getCasa(), casas[y][x]))));
             } else {
                 break;
             }
@@ -255,6 +278,12 @@ public class Jogo {
 
         for(Movimento movimento : cadeiaMovimentos.getMovimentos()){
             Casa casaDe = casas[movimento.getDeY()][movimento.getDeX()];
+            Peca pecaCapturada = casaDe.getPeca();
+
+            if(pecaCapturada != null && !pecaCapturada.getCorPeca().equals(turno)){
+                obterPecas(pecaCapturada.getCorPeca()).remove(pecaCapturada);
+            }
+
             casaDe.setPeca(null);
 
 

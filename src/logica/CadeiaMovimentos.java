@@ -1,18 +1,29 @@
 package logica;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CadeiaMovimentos {
 
+    private Peca pecaMovimentada;
     private List<Movimento> movimentos;
-    private List<Peca> pecasCapturadas;
+    private List<Peca> pecasCapturadas = new ArrayList<>();
 
-    public CadeiaMovimentos(List<Movimento> movimentos) {
+    public CadeiaMovimentos(Peca pecaMovimentada, List<Movimento> movimentos) {
+        this.pecaMovimentada = pecaMovimentada;
         this.movimentos = movimentos;
     }
 
+    public Peca getPecaMovimentada() {
+        return pecaMovimentada;
+    }
+
+    public void setPecaMovimentada(Peca pecaMovimentada) {
+        this.pecaMovimentada = pecaMovimentada;
+    }
+
     public int getCapturas(){
-        return movimentos.size();
+        return pecasCapturadas.size();
     }
 
     public List<Movimento> getMovimentos() {

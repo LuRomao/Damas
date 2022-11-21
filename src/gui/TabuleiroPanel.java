@@ -2,7 +2,6 @@ package gui;
 
 import logica.CadeiaMovimentos;
 import logica.Jogo;
-import logica.Movimento;
 import util.Util;
 
 import javax.swing.*;
@@ -20,6 +19,7 @@ public class TabuleiroPanel {
     private List<CasaPanel> casasMarcadas = new ArrayList<>();
     private Jogo jogo = new Jogo();
     private JPanel borda;
+    private boolean debug = true;
 
     private CasaPanel casaSelecionada = null;
 
@@ -55,6 +55,7 @@ public class TabuleiroPanel {
         janela.setSize(Util.TAMANHO_TELA);
         janela.setLocationRelativeTo(null);
         janela.setVisible(true);
+        marcarCasasDebug();
     }
 
     /**
@@ -77,6 +78,7 @@ public class TabuleiroPanel {
             }
         }));
 
+        marcarCasasDebug();
         casaClicada.setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Util.COR_HIGHLIGHT_PECA_SELECIONADA));
         casasMarcadas.add(casaClicada);
     }
@@ -95,9 +97,31 @@ public class TabuleiroPanel {
             peca.setDama(jogo.pecaEhDama(casaClicada.getPosicaoX(), casaClicada.getPosicaoY()));
             jogo.passarTurno();
             alterarCorFundo();
+
+            marcarCasasDebug();
         }
     }
 
+    /**
+     * Marca as casas para fins de debug
+     */
+    private void marcarCasasDebug(){
+        if(debug){
+            jogo.obterMovimentosTurnoAtual().forEach(c -> c.getMovimentos().forEach(m ->{
+                casasMarcadas.add(casasArray[m.getAteY()][m.getAteX()]);
+                casasArray[m.getAteY()][m.getAteX()].setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Util.COR_DEBUG_ENCADEAMENTO));
+
+                if(Util.ultimoElemento(c.getMovimentos(), m)){
+                    casasArray[m.getAteY()][m.getAteX()].setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, Util.COR_DEBUG));
+                }
+            }));
+        }
+    }
+
+    /**
+     * Desmarca as casas que estão marcadas.
+     * @param removerPecas caso deve remover a peça devido a um movimento de captura.
+     */
     private void desmarcarCasas(boolean removerPecas){
         casasMarcadas.forEach(c -> {
             c.setBorder(null);
@@ -111,6 +135,9 @@ public class TabuleiroPanel {
         casasMarcadas = new ArrayList<>();
     }
 
+    /**
+     * Altera a cor de fundo para demonstrar o turno atual
+     */
     private void alterarCorFundo(){
         Color corFundo = Util.obterCorPorEnum(jogo.getTurno());
         janela.getContentPane().setBackground(corFundo);
