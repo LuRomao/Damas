@@ -21,6 +21,7 @@ public class TabuleiroPanel {
     private Jogo jogo = new Jogo();
     private JPanel borda;
     private boolean debug = false;
+    private String prefixo = "Damas";
 
     private CasaPanel casaSelecionada = null;
 
@@ -33,7 +34,7 @@ public class TabuleiroPanel {
         borda = new JPanel();
         borda.setPreferredSize(Util.TAMANHO_BORDA);
 
-        janela = new JFrame("damas");
+        janela = new JFrame(prefixo);
         janela.setLayout(new GridBagLayout());
         janela.add(borda);
 
@@ -151,4 +152,7 @@ public class TabuleiroPanel {
         borda.setBackground(corFundo);
     }
 
+    public void escreverPosicao(int x, int y){
+        janela.setTitle(prefixo + " - " + "x: " + x +  " y: " + y);
+    }
 }

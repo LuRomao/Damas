@@ -122,16 +122,24 @@ public class Jogo {
 
         List<Casa> movimentosBasicos = obterCasasMovimentoBasico(continuarDirecao ? casaAnterior : null, casaAtual, false);
 
-        for(Casa c : movimentosBasicos){
+        //Caso tenha uma captura, só tenta adicionar a cadeia de movimentos após outro caso de captura
+        //TODO TERMINAR LOGICA DA DAMA
+        if(cadeiaMovimentos.getCapturas() > 0){
 
-            CadeiaMovimentos newCadeia = new CadeiaMovimentos(cadeiaMovimentos);
-            newCadeia.getMovimentos().add(new Movimento(casaAtual, c));
+        } else {
+            for(Casa c : movimentosBasicos){
 
-            if(c.getPeca() == null){
+                CadeiaMovimentos newCadeia = new CadeiaMovimentos(cadeiaMovimentos);
+                newCadeia.getMovimentos().add(new Movimento(casaAtual, c));
+
+                if(casaAnterior != null && casaAnterior.getPeca() != null){
+                    cadeiaMovimentos.getPecasCapturadas().add(casaAnterior.getPeca());
+                }
+
                 computarJogadasCasaDama(c, casaAtual, true, newCadeia, peca);
-            }
 
-            tentarAdicionarCadeiaDeMovimentos(newCadeia);
+                tentarAdicionarCadeiaDeMovimentos(newCadeia);
+            }
         }
     }
 
@@ -253,9 +261,16 @@ public class Jogo {
      * @return true caso possua peça false caso não
      */
     public static Peca obterPecaJogoPadrao(Casa casa){
+        //TODO REMOVER APÓS FIM DOS TESTES
         if(casa.getLinha() == 5 && casa.getColuna() == 4){
             Peca peca = new Peca(CorPeca.BRANCA, casa);
             peca.setDama(true);
+            return peca;
+        }
+
+        if(casa.getLinha() == 3 && casa.getColuna() == 2){
+            Peca peca = new Peca(CorPeca.PRETA, casa);
+//            peca.setDama(true);
             return peca;
         }
 

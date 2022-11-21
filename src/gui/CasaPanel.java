@@ -68,6 +68,7 @@ class CasaPanel extends JPanel {
             @Override
             public void mouseEntered(MouseEvent e) {
                 setBackground(Util.brightness(corPadrao, 0.9));
+                tabuleiroPanel.escreverPosicao(posicaoX, posicaoY);
             }
 
             @Override
