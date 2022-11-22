@@ -38,7 +38,7 @@ class CasaPanel extends JPanel {
         this.posicaoX = posicaoX;
         this.posicaoY = posicaoY;
 
-        corPadrao = (posicaoX + posicaoY) % 2 == 0 ? Util.COR_CASA_PRETA : Util.COR_CASA_BRANCA;
+        corPadrao = (posicaoX + posicaoY) % 2 != 0 ? Util.COR_CASA_PRETA : Util.COR_CASA_BRANCA;
         setBackground(corPadrao);
         setPreferredSize(Util.TAMANHO_CASA);
         setLayout(new GridBagLayout());

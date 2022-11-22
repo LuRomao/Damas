@@ -131,12 +131,14 @@ public class Jogo {
 
                 CadeiaMovimentos newCadeia = new CadeiaMovimentos(cadeiaMovimentos);
                 newCadeia.getMovimentos().add(new Movimento(casaAtual, c));
+                continuarDirecao = true;
 
                 if(casaAtual.getPeca() != null && !casaAtual.getPeca().equals(peca)){
                     newCadeia.getPecasCapturadas().add(casaAtual.getPeca());
+                    continuarDirecao = false;
                 }
 
-                computarJogadasCasaDama(c, casaAtual, true, newCadeia, peca);
+                computarJogadasCasaDama(c, casaAtual, continuarDirecao, newCadeia, peca);
                 tentarAdicionarCadeiaDeMovimentos(newCadeia);
             }
         }
@@ -237,15 +239,6 @@ public class Jogo {
                 }
             }
 
-            if(removerUltimaDirecao){
-                int x = -(casaAtual.getX() - casaAnterior.getX()) + casaAtual.getX();
-                int y = -(casaAtual.getY() - casaAnterior.getY()) + casaAtual.getY();
-
-                if(resultado.stream().anyMatch(c -> c.equals(casas[y][x]))){
-                    resultado.remove(casas[y][x]);
-                }
-            }
-
         }
 
         return resultado;
@@ -269,24 +262,12 @@ public class Jogo {
      * @return true caso possua peça false caso não
      */
     public static Peca obterPecaJogoPadrao(Casa casa){
-        //TODO REMOVER APÓS FIM DOS TESTES
-        if(casa.getY() == 5 && casa.getX() == 4){
-            Peca peca = new Peca(CorPeca.BRANCA, casa);
-            peca.setDama(true);
-            return peca;
+        if(casa.getY() <= 2 && (casa.getY() + casa.getX()) % 2 != 0){
+            return new Peca(CorPeca.PRETA, casa);
         }
-
-        if(casa.getY() == 3 && casa.getX() == 2 || casa.getY() == 1 && casa.getX() == 2){
-            Peca peca = new Peca(CorPeca.PRETA, casa);
-            return peca;
+        if(casa.getY() >= 5 && (casa.getY() + casa.getX()) % 2 != 0){
+            return new Peca(CorPeca.BRANCA, casa);
         }
-
-//        if(casa.getY() <= 2 && (casa.getY() + casa.getX()) % 2 == 0){
-//            return new Peca(CorPeca.PRETA, casa);
-//        }
-//        if(casa.getY() >= 5 && (casa.getY() + casa.getX()) % 2 == 0){
-//            return new Peca(CorPeca.BRANCA, casa);
-//        }
         return null;
     }
 
